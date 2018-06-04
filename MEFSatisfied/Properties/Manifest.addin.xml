@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ExtensionModel>
+	<Runtime>
+	</Runtime>
+
+	<Extension path = "/MonoDevelop/Ide/Commands">
+		<Command id = "MEFSatisfied.Commands.Dump"
+			_label = "MEF Catalog"
+			_description = "Dumps the MEF catalog"
+			defaultHandler = "MEFSatisfied.DumpHandler" />
+	</Extension>
+
+	<Extension path="/MonoDevelop/Ide/MainMenu/Help">
+		<ItemSet id="Diagnostics" _label="_Diagnostics">
+			<CommandItem id="MEFSatisfied.Commands.Dump" />
+		</ItemSet>
+	</Extension>
+
+	<Extension path = "/MonoDevelop/Core/Applications">
+		<Application id = "mef-graph" class = "MEFSatisfied.MEFImportApplication" description = "Shows the MEF satisfied graph for the given addin tree"/>
+	</Extension>
+</ExtensionModel>
