@@ -156,7 +156,7 @@ namespace MEFSatisfied
 
 			Console.WriteLine();
 
-			const bool verbose = true;
+			const bool verbose = false;
 			if (verbose)
 			{
 				foreach (var item in map)
