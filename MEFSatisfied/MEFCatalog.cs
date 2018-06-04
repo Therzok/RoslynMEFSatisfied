@@ -39,7 +39,8 @@ namespace MEFSatisfied
 			assemblies = assemblies ?? ReadAssembliesFromAddins();
 			var catalog = await CreateCatalog(assemblies);
 
-			Dictionary<string, HashSet<ExportDefinition>> map = new Dictionary<string, HashSet<ExportDefinition>>();
+			var map = new Dictionary<string, HashSet<ExportDefinition>>();
+			var allLanguages = new HashSet<string>();
 
 			// Go once through all the parts to setup all exports
 			foreach (var part in catalog.Parts)
@@ -99,6 +100,9 @@ namespace MEFSatisfied
 
 					exportDefinitions.Add(new ExportDefinition(type.FullName, type.AssemblyName.FullName, language, layer));
 
+					if (language != null)
+						allLanguages.Add(language);
+
 				skip:
 					// Empty statement here.
 					;
@@ -144,12 +148,26 @@ namespace MEFSatisfied
 
 				var allInterfaces = type.GetInterfaces();
 				var minimalInterfaces = allInterfaces
-					.Where(x => !allInterfaces.Any(t => t.GetInterfaces().Contains (x)));
+					.Where(x => !allInterfaces.Any(t => t.GetInterfaces().Contains (x))).ToArray ();
 
-				if (minimalInterfaces.Contains (workspaceServiceType) || minimalInterfaces.Contains (languageServiceType))
+				// Verify that all the workspace services have non-stub implementations
+				if (minimalInterfaces.Contains (workspaceServiceType))
 				{
 					if (!map.TryGetValue(type.FullName, out var exports) || exports.All(x => IsStubImplementation(x.TypeName))) {
 						Console.WriteLine(type.FullName);
+					}
+				}
+
+				// Verify that all the language services have non-stub implementations and that all languages are covered
+				if (minimalInterfaces.Contains (languageServiceType))
+				{
+					if (!map.TryGetValue(type.FullName, out var exports) || exports.All(x => IsStubImplementation(x.TypeName)))
+					{
+						Console.Write(type.FullName);
+						if (exports != null) {
+							Console.Write(" - {0}", string.Join(", ", allLanguages.Where(lang => !exports.Any(x => x.Language == lang))));
+						}
+						Console.WriteLine();
 					}
 				}
 			}
